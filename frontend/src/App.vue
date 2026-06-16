@@ -1,20 +1,30 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { House, Bell, CreditCard, DataAnalysis, User, Tools } from '@element-plus/icons-vue';
+import { House, Bell, CreditCard, DataAnalysis, User, Tools, Calendar, Setting } from '@element-plus/icons-vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from './stores/authStore';
+import { USER_ROLE } from './constants/user';
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 
-const navItems = [
-  { path: '/dashboard', label: '工作台', icon: DataAnalysis },
-  { path: '/repairs', label: '报修', icon: Tools },
-  { path: '/payments', label: '缴费', icon: CreditCard },
-  { path: '/announcements', label: '公告', icon: Bell },
-  { path: '/profile', label: '我的', icon: User },
-];
+const navItems = computed(() => {
+  const items = [
+    { path: '/dashboard', label: '工作台', icon: DataAnalysis },
+    { path: '/repairs', label: '报修', icon: Tools },
+    { path: '/payments', label: '缴费', icon: CreditCard },
+    { path: '/announcements', label: '公告', icon: Bell },
+  ];
+  if (authStore.can('facility:view')) {
+    items.push({ path: '/facilities', label: '设施预约', icon: Calendar });
+  }
+  if (authStore.can('facility:manage')) {
+    items.push({ path: '/facility-manage', label: '设施管理', icon: Setting });
+  }
+  items.push({ path: '/profile', label: '我的', icon: User });
+  return items;
+});
 
 const activePath = computed(() => route.path);
 </script>

@@ -120,7 +120,12 @@ INSERT INTO permissions(code, name) VALUES
 ('announcement:view', '查看公告'),
 ('announcement:publish', '发布公告'),
 ('user:profile', '编辑个人资料'),
-('operationLog:view', '查看操作日志')
+('operationLog:view', '查看操作日志'),
+('facility:view', '查看设施'),
+('facility:book', '预约设施'),
+('facility:manage', '管理设施'),
+('facility:slotManage', '管理时段'),
+('facility:bookingView', '查看预约')
 ON DUPLICATE KEY UPDATE name = VALUES(name);
 
 INSERT INTO role_permissions(role_code, permission_code) VALUES
@@ -131,6 +136,8 @@ INSERT INTO role_permissions(role_code, permission_code) VALUES
 ('resident','payment:pay'),
 ('resident','announcement:view'),
 ('resident','user:profile'),
+('resident','facility:view'),
+('resident','facility:book'),
 ('staff','dashboard:view'),
 ('staff','repair:view'),
 ('staff','repair:assign'),
@@ -139,6 +146,10 @@ INSERT INTO role_permissions(role_code, permission_code) VALUES
 ('staff','announcement:view'),
 ('staff','announcement:publish'),
 ('staff','user:profile'),
+('staff','facility:view'),
+('staff','facility:manage'),
+('staff','facility:slotManage'),
+('staff','facility:bookingView'),
 ('admin','dashboard:view'),
 ('admin','repair:view'),
 ('admin','repair:create'),
@@ -149,7 +160,12 @@ INSERT INTO role_permissions(role_code, permission_code) VALUES
 ('admin','announcement:view'),
 ('admin','announcement:publish'),
 ('admin','user:profile'),
-('admin','operationLog:view')
+('admin','operationLog:view'),
+('admin','facility:view'),
+('admin','facility:book'),
+('admin','facility:manage'),
+('admin','facility:slotManage'),
+('admin','facility:bookingView')
 ON DUPLICATE KEY UPDATE permission_code = VALUES(permission_code);
 
 INSERT INTO users(id, phone, password_hash, nickname, avatar, role, building, unit, room) VALUES
@@ -175,3 +191,78 @@ INSERT INTO announcements(id, title, content, category, publisher_id, publish_at
 (2, '端午社区便民服务开放预约', '本周六开放家电清洗、磨刀、义诊服务，业主可在物业前台预约。', 'event', 2, '2026-06-12 14:00:00', 0, 128),
 (3, '6月公共区域消杀通知', '6月18日9:00-11:30进行楼道及地库消杀，请提前收好门口物品。', 'notice', 2, '2026-06-10 08:40:00', 0, 87)
 ON DUPLICATE KEY UPDATE title = VALUES(title), top = VALUES(top);
+
+CREATE TABLE IF NOT EXISTS facilities (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(80) NOT NULL,
+  description TEXT,
+  image VARCHAR(255) DEFAULT NULL,
+  location VARCHAR(160) DEFAULT NULL,
+  status ENUM('active','inactive') NOT NULL DEFAULT 'active',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_facilities_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS facility_time_slots (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  facility_id BIGINT NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  capacity INT NOT NULL DEFAULT 1,
+  weekday TINYINT DEFAULT NULL COMMENT '1-7 对应周一到周日，NULL表示每天',
+  status ENUM('active','inactive') NOT NULL DEFAULT 'active',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_slots_facility FOREIGN KEY (facility_id) REFERENCES facilities(id),
+  INDEX idx_slots_facility (facility_id),
+  INDEX idx_slots_weekday (weekday)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS facility_bookings (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT NOT NULL,
+  facility_id BIGINT NOT NULL,
+  slot_id BIGINT NOT NULL,
+  booking_date DATE NOT NULL,
+  status ENUM('booked','cancelled','completed') NOT NULL DEFAULT 'booked',
+  remark VARCHAR(200) DEFAULT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_bookings_user FOREIGN KEY (user_id) REFERENCES users(id),
+  CONSTRAINT fk_bookings_facility FOREIGN KEY (facility_id) REFERENCES facilities(id),
+  CONSTRAINT fk_bookings_slot FOREIGN KEY (slot_id) REFERENCES facility_time_slots(id),
+  UNIQUE KEY uk_user_slot_date (user_id, slot_id, booking_date),
+  INDEX idx_bookings_facility_date (facility_id, booking_date),
+  INDEX idx_bookings_user (user_id),
+  INDEX idx_bookings_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO facilities(id, name, description, image, location, status) VALUES
+(1, '社区健身房', '配备跑步机、哑铃、椭圆机等基础健身器材，业主凭门禁卡入场。', 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600', '2号楼负一层', 'active'),
+(2, '室内游泳池', '25米标准恒温泳池，设有浅水区与深水区，需佩戴泳帽入场。', 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?w=600', '会所一层', 'active'),
+(3, '棋牌室', '配备麻将桌与棋牌桌椅，适合业主休闲娱乐。', 'https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=600', '3号楼架空层', 'active'),
+(4, '多功能厅', '可用于社区活动、会议、小型演出，可通过物业预约使用。', 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=600', '会所二层', 'active')
+ON DUPLICATE KEY UPDATE name = VALUES(name), status = VALUES(status);
+
+INSERT INTO facility_time_slots(id, facility_id, start_time, end_time, capacity, weekday, status) VALUES
+(1, 1, '06:00:00', '08:00:00', 10, NULL, 'active'),
+(2, 1, '08:00:00', '10:00:00', 15, NULL, 'active'),
+(3, 1, '10:00:00', '12:00:00', 15, NULL, 'active'),
+(4, 1, '14:00:00', '16:00:00', 15, NULL, 'active'),
+(5, 1, '16:00:00', '18:00:00', 20, NULL, 'active'),
+(6, 1, '18:00:00', '20:00:00', 20, NULL, 'active'),
+(7, 1, '20:00:00', '22:00:00', 10, NULL, 'active'),
+(8, 2, '07:00:00', '09:00:00', 20, NULL, 'active'),
+(9, 2, '09:00:00', '11:00:00', 25, NULL, 'active'),
+(10, 2, '14:00:00', '16:00:00', 25, NULL, 'active'),
+(11, 2, '16:00:00', '18:00:00', 30, NULL, 'active'),
+(12, 2, '18:00:00', '20:00:00', 25, NULL, 'active'),
+(13, 2, '20:00:00', '21:30:00', 15, NULL, 'active'),
+(14, 3, '09:00:00', '11:00:00', 8, NULL, 'active'),
+(15, 3, '14:00:00', '17:00:00', 8, NULL, 'active'),
+(16, 3, '19:00:00', '22:00:00', 8, NULL, 'active'),
+(17, 4, '09:00:00', '12:00:00', 50, NULL, 'active'),
+(18, 4, '14:00:00', '17:00:00', 50, NULL, 'active'),
+(19, 4, '18:00:00', '21:00:00', 50, NULL, 'active')
+ON DUPLICATE KEY UPDATE start_time = VALUES(start_time), end_time = VALUES(end_time), capacity = VALUES(capacity);

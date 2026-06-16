@@ -31,6 +31,18 @@ public final class LogTemplates {
     public static final String ERROR_WRAPPED = "Error[code=%s] wrapped at layer=%s role=%s";
     public static final String DASHBOARD_STATS = "Dashboard[repair/payment/announcement] stats queried by role=%s";
     public static final String FORMATTER_STATUS = "Formatter[RepairStatus=%s] rendered for role=%s";
+    public static final String FACILITY_LIST = "Facility[list] fetched by role=%s";
+    public static final String FACILITY_CREATE = "Facility[id=%s] created: name=%s role=%s";
+    public static final String FACILITY_UPDATE = "Facility[id=%s] updated: role=%s";
+    public static final String FACILITY_DELETE = "Facility[id=%s] deleted: role=%s";
+    public static final String FACILITY_SLOT_LIST = "FacilitySlot[facility_id=%s] list fetched by role=%s";
+    public static final String FACILITY_SLOT_CREATE = "FacilitySlot[id=%s] created: facility_id=%s role=%s";
+    public static final String FACILITY_SLOT_UPDATE = "FacilitySlot[id=%s] updated: role=%s";
+    public static final String FACILITY_SLOT_DELETE = "FacilitySlot[id=%s] deleted: role=%s";
+    public static final String FACILITY_BOOKING_LIST = "FacilityBooking[list] fetched by role=%s";
+    public static final String FACILITY_BOOKING_MY_LIST = "FacilityBooking[my] list fetched by user_id=%s role=%s";
+    public static final String FACILITY_BOOKING_CREATE = "FacilityBooking[id=%s] created: slot_id=%s date=%s role=%s";
+    public static final String FACILITY_BOOKING_CANCEL = "FacilityBooking[id=%s] cancelled: role=%s";
 
     private LogTemplates() {
     }

@@ -4,6 +4,8 @@ import Repairs from '../pages/Repairs.vue';
 import Payments from '../pages/Payments.vue';
 import Announcements from '../pages/Announcements.vue';
 import Profile from '../pages/Profile.vue';
+import Facilities from '../pages/Facilities.vue';
+import FacilityManage from '../pages/FacilityManage.vue';
 import { registerGuards } from './guards';
 import { USER_ROLE } from '../constants/user';
 
@@ -37,6 +39,24 @@ const routes: RouteRecordRaw[] = [
     path: '/profile',
     component: Profile,
     meta: { title: '个人中心', permission: 'user:profile', roles: [USER_ROLE.RESIDENT, USER_ROLE.STAFF, USER_ROLE.ADMIN] },
+  },
+  {
+    path: '/facilities',
+    component: Facilities,
+    meta: {
+      title: '设施预约',
+      permission: 'facility:view',
+      roles: [USER_ROLE.RESIDENT, USER_ROLE.STAFF, USER_ROLE.ADMIN],
+    },
+  },
+  {
+    path: '/facility-manage',
+    component: FacilityManage,
+    meta: {
+      title: '设施管理',
+      permission: 'facility:manage',
+      roles: [USER_ROLE.STAFF, USER_ROLE.ADMIN],
+    },
   },
 ];
 

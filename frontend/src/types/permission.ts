@@ -11,7 +11,12 @@ export type PermissionCode =
   | 'announcement:view'
   | 'announcement:publish'
   | 'user:profile'
-  | 'operationLog:view';
+  | 'operationLog:view'
+  | 'facility:view'
+  | 'facility:book'
+  | 'facility:manage'
+  | 'facility:slotManage'
+  | 'facility:bookingView';
 
 export interface RoutePermissionMeta {
   permission: PermissionCode;

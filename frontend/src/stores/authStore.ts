@@ -29,6 +29,11 @@ const defaultPermissions: PermissionCode[] = [
   'announcement:publish',
   'user:profile',
   'operationLog:view',
+  'facility:view',
+  'facility:book',
+  'facility:manage',
+  'facility:slotManage',
+  'facility:bookingView',
 ];
 
 export const useAuthStore = defineStore('auth', () => {

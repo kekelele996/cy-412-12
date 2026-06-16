@@ -31,7 +31,20 @@ public class RbacInterceptor implements HandlerInterceptor {
             Map.entry("GET /announcements", Permissions.ANNOUNCEMENT_VIEW),
             Map.entry("POST /announcements", Permissions.ANNOUNCEMENT_PUBLISH),
             Map.entry("POST /announcements/.*/read", Permissions.ANNOUNCEMENT_VIEW),
-            Map.entry("GET /operation-logs", Permissions.OPERATION_LOG_VIEW)
+            Map.entry("GET /operation-logs", Permissions.OPERATION_LOG_VIEW),
+            Map.entry("GET /facilities", Permissions.FACILITY_VIEW),
+            Map.entry("GET /facilities/.*", Permissions.FACILITY_VIEW),
+            Map.entry("POST /facilities", Permissions.FACILITY_MANAGE),
+            Map.entry("PUT /facilities/.*", Permissions.FACILITY_MANAGE),
+            Map.entry("DELETE /facilities/.*", Permissions.FACILITY_MANAGE),
+            Map.entry("GET /facilities/.*/slots", Permissions.FACILITY_VIEW),
+            Map.entry("POST /facilities/.*/slots", Permissions.FACILITY_SLOT_MANAGE),
+            Map.entry("PUT /facilities/.*/slots/.*", Permissions.FACILITY_SLOT_MANAGE),
+            Map.entry("DELETE /facilities/.*/slots/.*", Permissions.FACILITY_SLOT_MANAGE),
+            Map.entry("GET /facility-bookings", Permissions.FACILITY_BOOKING_VIEW),
+            Map.entry("GET /facility-bookings/my", Permissions.FACILITY_BOOK),
+            Map.entry("POST /facility-bookings", Permissions.FACILITY_BOOK),
+            Map.entry("PUT /facility-bookings/.*/cancel", Permissions.FACILITY_BOOK)
     );
 
     public RbacInterceptor(PermissionService permissionService) {

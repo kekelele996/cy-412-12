@@ -12,6 +12,11 @@ public final class Permissions {
     public static final String ANNOUNCEMENT_PUBLISH = "announcement:publish";
     public static final String USER_PROFILE = "user:profile";
     public static final String OPERATION_LOG_VIEW = "operationLog:view";
+    public static final String FACILITY_VIEW = "facility:view";
+    public static final String FACILITY_BOOK = "facility:book";
+    public static final String FACILITY_MANAGE = "facility:manage";
+    public static final String FACILITY_SLOT_MANAGE = "facility:slotManage";
+    public static final String FACILITY_BOOKING_VIEW = "facility:bookingView";
 
     private Permissions() {
     }
